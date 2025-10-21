@@ -1,0 +1,50 @@
+---
+title: "Lecture 2: Visualizing Temperature in Germany"
+author: "Rosemary Jones"
+format:
+  revealjs:
+    theme: simple
+    footer: "Rosemary Jones (2025)"
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#spatial data libraries
+library(terra)
+library(sf)
+library(geodata)
+library(rnaturalearth)
+library(rnaturalearthdata)
+```
+
+## Plot German Boundaries
+
+```{r 1, echo = t, warning = FALSE}
+ger <-ne_countries(country="Germany", scale="medium", returnclass = "sf")
+plot(ger)
+```
+
+## Get Temperature Minimums
+
+```{r 2, echo = t, warning = FALSE}
+clim <- geodata::worldclim_global(var='tmin', res=10, download=T,path='.')
+plot(clim)
+```
+
+## Crop to Germany
+
+```{r 3, echo = t, warning = FALSE}
+ger.r <- st_transform(ger,st_crs(clim))
+clim_ger_crop <- terra::crop(clim, ger.r)
+plot(clim_ger_crop)
+```
+
+## Mask to Germany
+
+```{r 4, echo = t, warning = FALSE}
+clim_ger_mask <-terra::mask(clim_ger_crop, ger.r)
+col_ramp <- colorRampPalette(c("lightblue", "pink"))(50)
+plot(clim_ger_mask, col=col_ramp)
+```
